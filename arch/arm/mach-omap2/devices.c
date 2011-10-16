@@ -342,6 +342,9 @@ struct omap_device_pm_latency omap_mcspi_latency[] = {
 	},
 };
 
+extern int mcspi3_cs_gpios[4];
+extern int mcspi4_cs_gpios[4];
+
 static int omap_mcspi_init(struct omap_hwmod *oh, void *unused)
 {
 	struct omap_device *od;
@@ -368,6 +371,18 @@ static int omap_mcspi_init(struct omap_hwmod *oh, void *unused)
 	default:
 			pr_err("Invalid McSPI Revision value\n");
 			return -EINVAL;
+	}
+
+	/* HACK: Not enough time to figure out how to export cs_gpios from
+	 * board file to driver correctly */
+	if (spi_num == 2) {
+		// Setup McSPI3 cs_gpios
+		pdata->num_cs = 4;
+		pdata->cs_gpios = mcspi3_cs_gpios;
+	} else if (spi_num == 3) {
+		// Setup McSPI4 cs_gpios
+		pdata->num_cs = 4;
+		pdata->cs_gpios = mcspi4_cs_gpios;
 	}
 
 	spi_num++;
