@@ -20,6 +20,7 @@
 #include <linux/init.h>
 #include <linux/platform_device.h>
 #include <linux/clk.h>
+#include <linux/spi/spi.h>
 #include <linux/io.h>
 #include <linux/leds.h>
 #include <linux/gpio.h>
@@ -143,6 +144,56 @@ static struct platform_device *panda_devices[] __initdata = {
 	&panda_abe_audio,
 	&panda_hdmi_audio_codec,
 	&btwilink_device,
+};
+
+static void __init panda_config_mcspi1_mux(void)
+{
+        // NOTE: Clock pins need to be in input mode
+	omap_mux_init_signal("mcspi1_clk", OMAP_PIN_INPUT);
+	omap_mux_init_signal("mcspi1_cs0", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("mcspi1_cs1", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("mcspi1_cs2", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("mcspi1_cs3", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("mcspi1_simo", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("mcspi1_somi", OMAP_PIN_INPUT_PULLUP);
+}
+
+static struct spi_board_info panda_mcspi_board_info[] = {
+	// spi 1.0
+	{
+		.modalias	= "spidev",
+		.max_speed_hz	= 48000000, // 48 Mbps
+		.bus_num	= 1,
+		.chip_select	= 0,
+		.mode = SPI_MODE_1,
+	},
+
+	// spi 1.1
+	{
+		.modalias	= "spidev",
+		.max_speed_hz	= 48000000, // 48 Mbps
+		.bus_num	= 1,
+		.chip_select	= 1,
+		.mode = SPI_MODE_1,
+	},
+
+	// spi 1.2
+	{
+		.modalias	= "spidev",
+		.max_speed_hz	= 48000000, // 48 Mbps
+		.bus_num	= 1,
+		.chip_select	= 2,
+		.mode = SPI_MODE_1,
+	},
+
+	// spi 1.3
+	{
+		.modalias	= "spidev",
+		.max_speed_hz	= 48000000, // 48 Mbps
+		.bus_num	= 1,
+		.chip_select	= 3,
+		.mode = SPI_MODE_1,
+	},
 };
 
 static const struct usbhs_omap_board_data usbhs_bdata __initconst = {
@@ -505,6 +556,9 @@ static void __init omap4_panda_init(void)
 	platform_add_devices(panda_devices, ARRAY_SIZE(panda_devices));
 	platform_device_register(&omap_vwlan_device);
 	omap_serial_init();
+	panda_config_mcspi1_mux();
+	spi_register_board_info(panda_mcspi_board_info,
+			ARRAY_SIZE(panda_mcspi_board_info));
 	omap_sdrc_init(NULL, NULL);
 	omap4_twl6030_hsmmc_init(mmc);
 	omap4_ehci_init();
