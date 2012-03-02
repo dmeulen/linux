@@ -41,6 +41,7 @@
 #include <video/omapdss.h>
 
 #include <plat/board.h>
+#include <plat/gpmc.h>
 #include "common.h"
 #include <plat/usb.h>
 #include <plat/mmc.h>
@@ -156,6 +157,28 @@ static void __init panda_config_mcspi1_mux(void)
 	omap_mux_init_signal("mcspi1_cs3", OMAP_PIN_OUTPUT);
 	omap_mux_init_signal("mcspi1_simo", OMAP_PIN_OUTPUT);
 	omap_mux_init_signal("mcspi1_somi", OMAP_PIN_INPUT_PULLUP);
+}
+
+static void __init panda_config_gpmc(void)
+{
+	omap_mux_init_signal("gpmc_clk", OMAP_PIN_INPUT);
+	omap_mux_init_signal("gpmc_nadc_ale", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("gpmc_noe", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("gpmc_nwe", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("gpmc_nbe0_cle", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("gpmc_nbe1", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("gpmc_wait0", OMAP_PIN_INPUT);
+	omap_mux_init_signal("gpmc_wait1", OMAP_PIN_INPUT);
+	omap_mux_init_signal("gpmc_cs0", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("gpmc_cs1", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("gpmc_ad0", OMAP_PIN_INPUT_PULLUP);
+	omap_mux_init_signal("gpmc_ad1", OMAP_PIN_INPUT_PULLUP);
+	omap_mux_init_signal("gpmc_ad2", OMAP_PIN_INPUT_PULLUP);
+	omap_mux_init_signal("gpmc_ad3", OMAP_PIN_INPUT_PULLUP);
+	omap_mux_init_signal("gpmc_ad4", OMAP_PIN_INPUT_PULLUP);
+	omap_mux_init_signal("gpmc_ad5", OMAP_PIN_INPUT_PULLUP);
+	omap_mux_init_signal("gpmc_ad6", OMAP_PIN_INPUT_PULLUP);
+	omap_mux_init_signal("gpmc_ad7", OMAP_PIN_INPUT_PULLUP);
 }
 
 static struct spi_board_info panda_mcspi_board_info[] = {
