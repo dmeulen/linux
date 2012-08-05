@@ -36,6 +36,7 @@ struct pandadaq_data {
         struct device *dev;
         struct cdev cdev;
         unsigned long phys_base;
+        void *base;
 };
 
 static struct pandadaq_data *pandadaq;
@@ -152,14 +153,15 @@ static ssize_t pandadaq_read(struct file *filp, char __user *buf,
         while (count > 0) {
                 unsigned long remaining;
 
-                if (p > PANDADAQ_WINDOW_SIZE)
-                        return -EPERM;
+                sz = size_inside_page(p, count);
 
-                ptr = xlate_dev_mem_ptr(p + pdaq->phys_base);
+                if (p > PANDADAQ_WINDOW_SIZE)
+                        return -EFAULT;
+
+                ptr = xlate_dev_kmem_ptr(p + pdaq->base);
                 if (!ptr)
                         return -EFAULT;
                 
-                sz = size_inside_page(p, count);
                 remaining = copy_to_user(buf, ptr, sz);
                 if (remaining)
                         return -EFAULT;
@@ -188,9 +190,9 @@ ssize_t pandadaq_write(struct file *filp, const char __user *buf,
                 sz = size_inside_page(p, count);
 
                 if (p > PANDADAQ_WINDOW_SIZE)
-                        return -EPERM;
+                        return -EFAULT;
 
-		ptr = xlate_dev_mem_ptr(p + pdaq->phys_base);
+		ptr = xlate_dev_kmem_ptr(p + pdaq->base);
                 if (!ptr) {
                         if (written)
                                 break;
@@ -233,6 +235,7 @@ int __init pandadaq_probe(struct platform_device *pdev)
 {
         int ret;
         struct device *dev;
+        unsigned int *addr;
 
         pandadaq = kzalloc(sizeof(*pandadaq), GFP_KERNEL);
         if (!pandadaq) {
@@ -244,6 +247,16 @@ int __init pandadaq_probe(struct platform_device *pdev)
         platform_set_drvdata(pdev, pandadaq);
         
 	pandadaq_init_gpmc(pandadaq);
+        printk(KERN_ERR "pandadaq: Window at %08lx\n", pandadaq->phys_base);
+
+        addr = ioremap(pandadaq->phys_base, PANDADAQ_WINDOW_SIZE);
+        if (!addr) {
+                ret = -ENOMEM;
+                goto err;
+        }
+
+        pandadaq->base = addr;
+        printk(KERN_ERR "pandadaq: Window mapped at %08lx\n", pandadaq->base);
 
 	pandadaq_class = class_create(THIS_MODULE, "pandadaq");
 	if (IS_ERR(pandadaq_class))
