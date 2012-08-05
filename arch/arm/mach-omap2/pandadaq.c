@@ -232,6 +232,7 @@ static const struct file_operations pandadaq_fops = {
 int __init pandadaq_probe(struct platform_device *pdev)
 {
         int ret;
+        struct device *dev;
 
         pandadaq = kzalloc(sizeof(*pandadaq), GFP_KERNEL);
         if (!pandadaq) {
@@ -250,11 +251,18 @@ int __init pandadaq_probe(struct platform_device *pdev)
 	
         cdev_init(&pandadaq->cdev, &pandadaq_fops);
         ret = cdev_add(&pandadaq->cdev, MKDEV(202, 128), 1);
-        if (ret)
+        if (ret) {
+                printk(KERN_ERR "pandadaq: Failed to create char device: %d\n", ret);
                 goto err;
+        }
 	
-	device_create(pandadaq_class, NULL, 0,
+	dev = device_create(pandadaq_class, NULL, 0,
 		      NULL, "pandadaq");
+	if (IS_ERR(dev)) {
+		printk(KERN_ERR "pandadaq: Failed to register device: %ld\n", PTR_ERR(dev));
+		return PTR_ERR(dev);
+	}
+
 	return 0;
 
 err:
