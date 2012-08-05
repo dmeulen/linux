@@ -32,17 +32,6 @@
 
 #define PANDADAQ_WINDOW_SIZE SZ_128K
 
-static struct resource pandadaq_resource = {
-	.flags		= IORESOURCE_MEM,
-};
-
-static struct platform_device pandadaq_device = {
-	.name		= "pandadaq",
-	.id		= 0,
-	.num_resources	= 1,
-	.resource	= &pandadaq_resource,
-};
-
 struct pandadaq_data {
         struct device *dev;
         struct cdev cdev;
@@ -254,13 +243,6 @@ int __init pandadaq_probe(struct platform_device *pdev)
         platform_set_drvdata(pdev, pandadaq);
         
 	pandadaq_init_gpmc(pandadaq);
-
-	/* ret = platform_device_register(&pandadaq_device);
-	 * if (ret < 0) {
-	 * 	dev_err(&pdev->dev, "Unable to register PandaDAQ device\n");
-	 * 	return ret;
-	 * }
-         */
 
 	pandadaq_class = class_create(THIS_MODULE, "pandadaq");
 	if (IS_ERR(pandadaq_class))
