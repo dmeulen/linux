@@ -51,6 +51,7 @@
 #include "control.h"
 #include "mux.h"
 #include "common-board-devices.h"
+#include "pandadaq.h"
 
 #define GPIO_HUB_POWER		1
 #define GPIO_HUB_NRESET		62
@@ -139,12 +140,18 @@ static struct platform_device btwilink_device = {
 	.id	= -1,
 };
 
+static struct platform_device pandadaq_device = {
+        .name   = "pandadaq",
+        .id     = -1,
+};
+
 static struct platform_device *panda_devices[] __initdata = {
 	&leds_gpio,
 	&wl1271_device,
 	&panda_abe_audio,
 	&panda_hdmi_audio_codec,
 	&btwilink_device,
+	&pandadaq_device,
 };
 
 static void __init panda_config_mcspi1_mux(void)
