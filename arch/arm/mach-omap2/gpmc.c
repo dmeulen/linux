@@ -728,7 +728,7 @@ static int __init gpmc_init(void)
 		l = OMAP34XX_GPMC_BASE;
 		gpmc_irq = INT_34XX_GPMC_IRQ;
 	} else if (cpu_is_omap44xx()) {
-		ck = "gpmc_ck";
+		ck = "gpmc_ick";
 		l = OMAP44XX_GPMC_BASE;
 		gpmc_irq = OMAP44XX_IRQ_GPMC;
 	}
