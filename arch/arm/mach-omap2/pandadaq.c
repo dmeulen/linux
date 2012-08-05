@@ -26,6 +26,9 @@
 #include <asm/uaccess.h>
 #include <asm/io.h>
 
+#include <linux/spi/spi.h>
+#include "mux.h"
+
 #include "pandadaq.h"
 
 #define DRIVER_NAME "pandadaq"
@@ -217,6 +220,85 @@ ssize_t pandadaq_write(struct file *filp, const char __user *buf,
         return written;
 }
 
+static void __init panda_config_mcspi1_mux(void)
+{
+        // NOTE: Clock pins need to be in input mode
+	omap_mux_init_signal("mcspi1_clk", OMAP_PIN_INPUT);
+	omap_mux_init_signal("mcspi1_cs0", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("mcspi1_cs1", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("mcspi1_cs2", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("mcspi1_cs3", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("mcspi1_simo", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("mcspi1_somi", OMAP_PIN_INPUT_PULLUP);
+}
+
+static void __init panda_config_gpmc_mux(void)
+{
+	omap_mux_init_signal("gpmc_clk", OMAP_PIN_INPUT);
+	omap_mux_init_signal("gpmc_nadc_ale", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("gpmc_noe", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("gpmc_nwe", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("gpmc_nbe0_cle", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("gpmc_nbe1", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("gpmc_wait0", OMAP_PIN_INPUT);
+	omap_mux_init_signal("gpmc_wait1", OMAP_PIN_INPUT);
+	omap_mux_init_signal("gpmc_cs0", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("gpmc_cs1", OMAP_PIN_OUTPUT);
+	omap_mux_init_signal("gpmc_ad0", OMAP_PIN_INPUT_PULLUP);
+	omap_mux_init_signal("gpmc_ad1", OMAP_PIN_INPUT_PULLUP);
+	omap_mux_init_signal("gpmc_ad2", OMAP_PIN_INPUT_PULLUP);
+	omap_mux_init_signal("gpmc_ad3", OMAP_PIN_INPUT_PULLUP);
+	omap_mux_init_signal("gpmc_ad4", OMAP_PIN_INPUT_PULLUP);
+	omap_mux_init_signal("gpmc_ad5", OMAP_PIN_INPUT_PULLUP);
+	omap_mux_init_signal("gpmc_ad6", OMAP_PIN_INPUT_PULLUP);
+	omap_mux_init_signal("gpmc_ad7", OMAP_PIN_INPUT_PULLUP);
+}
+
+static struct spi_board_info panda_mcspi_board_info[] = {
+	// spi 1.0
+	{
+		.modalias	= "spidev",
+		.max_speed_hz	= 48000000, // 48 Mbps
+		.bus_num	= 1,
+		.chip_select	= 0,
+		.mode = SPI_MODE_1,
+	},
+
+	// spi 1.1
+	{
+		.modalias	= "spidev",
+		.max_speed_hz	= 48000000, // 48 Mbps
+		.bus_num	= 1,
+		.chip_select	= 1,
+		.mode = SPI_MODE_1,
+	},
+
+	// spi 1.2
+	{
+		.modalias	= "spidev",
+		.max_speed_hz	= 48000000, // 48 Mbps
+		.bus_num	= 1,
+		.chip_select	= 2,
+		.mode = SPI_MODE_1,
+	},
+
+	// spi 1.3
+	{
+		.modalias	= "spidev",
+		.max_speed_hz	= 48000000, // 48 Mbps
+		.bus_num	= 1,
+		.chip_select	= 3,
+		.mode = SPI_MODE_1,
+	},
+};
+
+void __init pandadaq_init_mux() {
+	panda_config_mcspi1_mux();
+	panda_config_gpmc_mux();
+	spi_register_board_info(panda_mcspi_board_info,
+			ARRAY_SIZE(panda_mcspi_board_info));
+}
+
 static struct class *pandadaq_class;
 
 static const struct file_operations pandadaq_fops = {
@@ -246,6 +328,7 @@ int __init pandadaq_probe(struct platform_device *pdev)
         pandadaq->dev = &pdev->dev;
         platform_set_drvdata(pdev, pandadaq);
         
+        pandadaq_init_mux();
 	pandadaq_init_gpmc(pandadaq);
         printk(KERN_ERR "pandadaq: Window at %08lx\n", pandadaq->phys_base);
 
