@@ -580,6 +580,7 @@ static void __init omap4_panda_init(void)
 	platform_device_register(&omap_vwlan_device);
 	omap_serial_init();
 	panda_config_mcspi1_mux();
+	panda_config_gpmc_mux();
 	spi_register_board_info(panda_mcspi_board_info,
 			ARRAY_SIZE(panda_mcspi_board_info));
 	omap_sdrc_init(NULL, NULL);
