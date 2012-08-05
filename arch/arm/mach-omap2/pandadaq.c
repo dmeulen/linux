@@ -46,7 +46,7 @@ static struct platform_device pandadaq_device = {
 struct pandadaq_data {
         struct device *dev;
         struct cdev cdev;
-        void *phys_base;
+        unsigned long phys_base;
 };
 
 static struct pandadaq_data *pandadaq;
@@ -77,7 +77,7 @@ static int __init pandadaq_init_gpmc(struct pandadaq_data *pdaq)
 	t.cs_wr_off = 1;
 	t.wr_cycle = 1;
 	
-	ret = gpmc_cs_request(0, (1<<16)-1, pdaq->phys_base);
+	ret = gpmc_cs_request(0, (1<<16)-1, &pdaq->phys_base);
 	if (ret)
 		return ret;
 	
