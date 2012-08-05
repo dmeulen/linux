@@ -329,7 +329,11 @@ int __init pandadaq_probe(struct platform_device *pdev)
         platform_set_drvdata(pdev, pandadaq);
         
         pandadaq_init_mux();
-	pandadaq_init_gpmc(pandadaq);
+	ret = pandadaq_init_gpmc(pandadaq));
+        if (!ret) {
+                printk(KERN_ERR "pandadaq: Failed to configure GPMC: %d\n", ret);
+                goto err;
+        }
         printk(KERN_ERR "pandadaq: Window at %08lx\n", pandadaq->phys_base);
 
         addr = ioremap(pandadaq->phys_base, PANDADAQ_WINDOW_SIZE);
