@@ -18,6 +18,10 @@
 		reg = <0x80000000 0x40000000>; /* 1 GB */
 	};
 
+	pandadaq {
+		compatible = "pandadaq";
+	};
+
 	leds {
 		compatible = "gpio-leds";
 		heartbeat {
