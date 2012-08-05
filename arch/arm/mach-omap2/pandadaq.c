@@ -20,6 +20,8 @@
 #include <linux/platform_device.h>
 #include <linux/major.h>
 #include <linux/cdev.h>
+#include <linux/of.h>
+#include <linux/of_device.h>
 
 #include <asm/uaccess.h>
 #include <asm/io.h>
@@ -286,12 +288,23 @@ static int __devexit pandadaq_remove(struct platform_device *pdev)
         return 0;
 }
 
+#ifdef CONFIG_OF
+static const struct of_device_id pandadaq_match[] = {
+        {
+                .compatible = "pandadaq",
+        },
+        { },
+};
+MODULE_DEVICE_TABLE(of, pandadaq_match);
+#endif
+
 static struct platform_driver pandadaq_driver = {
         .probe = pandadaq_probe,
         .remove = __exit_p(pandadaq_remove),
         .driver = {
                 .name = "pandadaq",
                 .owner = THIS_MODULE,
+                .of_match_table = of_match_ptr(pandadaq_match),
         },
 };
 
