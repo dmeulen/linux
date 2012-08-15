@@ -11,6 +11,7 @@
  * the Free Software Foundation.
  */
 
+#define DEBUG
 #define pr_fmt(fmt)		KBUILD_MODNAME ": " fmt
 #define psmouse_fmt(fmt)	fmt
 
